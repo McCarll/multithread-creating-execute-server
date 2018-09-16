@@ -1,12 +1,15 @@
 package main.java.asynctaskexecutor.entity;
 
+import main.java.asynctaskexecutor.service.QueueService;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
-import static main.java.asynctaskexecutor.Main.queue;
-
 public class Task implements Comparable<Task> {
+
+    private static QueueService.QueueSingleton queueService = QueueService.QueueSingleton.INSTANCE;
+
     private LocalDateTime time;
     private Callable taskExecute;
 
@@ -47,10 +50,23 @@ public class Task implements Comparable<Task> {
 
     @Override
     public int compareTo(Task o) {
-        if (queue.size() > 100) {
+        // for example, if tasks in queue more then 100 - system overloading and we cant do sorting more
+        if (queueService.size() > 100) {
             return 0;
         } else {
             return this.getTime().compareTo(o.getTime());
+        }
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return "Task{" +
+                    "time=" + time +
+                    ", taskExecute=" + taskExecute.call() +
+                    '}';
+        } catch (Exception e) {
+            return "error : " + e;
         }
     }
 }

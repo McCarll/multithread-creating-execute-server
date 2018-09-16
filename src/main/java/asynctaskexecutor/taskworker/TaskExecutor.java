@@ -1,13 +1,14 @@
 package main.java.asynctaskexecutor.taskworker;
 
-import main.java.asynctaskexecutor.Main;
 import main.java.asynctaskexecutor.entity.Task;
+import main.java.asynctaskexecutor.service.QueueService;
 
-import java.util.concurrent.Callable;
 
-import static main.java.asynctaskexecutor.Main.executorThread;
+import static main.java.asynctaskexecutor.Main.threadPoolExecutor;
 
 public class TaskExecutor extends Thread {
+
+    private static QueueService.QueueSingleton queueService = QueueService.QueueSingleton.INSTANCE;
 
     private volatile boolean stop = false;
 
@@ -23,14 +24,14 @@ public class TaskExecutor extends Thread {
     public void run() {
         do {
             try {
-                if (Main.queue.size() > 0) {
-                    Task task = Main.queue.poll();
+                if (!queueService.isEmpty()) {
+                    Task task = queueService.getNext();
                     System.out.println("executor : " + task.getTime() + " :: " + task.getTaskExecute().call());
                 }
             } catch (Exception e) {
                 System.out.println("executor = [" + e + "]");
             }
-        } while (isStop() != false | Main.queue.size() > 0);
+        } while (isStop() != true | !queueService.isEmpty() | threadPoolExecutor.getActiveCount() != 0);
     }
 
 }

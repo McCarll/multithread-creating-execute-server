@@ -1,31 +1,26 @@
 package main.java.asynctaskexecutor;
 
-import main.java.asynctaskexecutor.entity.Task;
 import main.java.asynctaskexecutor.taskworker.TaskCreator;
 import main.java.asynctaskexecutor.taskworker.TaskExecutor;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
-    public static volatile AtomicInteger counter = new AtomicInteger(-1);
-
-    public static BlockingQueue<Task> queue = new PriorityBlockingQueue<>();
-
-    public static TaskCreator creatorThread1 = new TaskCreator();
-    public static TaskCreator creatorThread2 = new TaskCreator();
-    public static TaskExecutor executorThread = new TaskExecutor();
+    public static ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
 
     public static void main(String... args) throws Exception {
+        TaskExecutor executorThread = new TaskExecutor();
+        threadPoolExecutor.execute(new TaskCreator(60));
+        threadPoolExecutor.execute(new TaskCreator(70));
         executorThread.start();
-
-        creatorThread1.run();
-        creatorThread2.run();
-
-        creatorThread1.join();
-        creatorThread2.join();
+        Thread.sleep(5000);// for example, now system have timeout
+        System.out.println("\n\n\n============\n\n\n");
+        threadPoolExecutor.execute(new TaskCreator(103));
+        threadPoolExecutor.awaitTermination(50, TimeUnit.MILLISECONDS);
+        threadPoolExecutor.shutdown();
         executorThread.kill();
     }
 
