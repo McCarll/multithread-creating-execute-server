@@ -1,5 +1,6 @@
 package test.java;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import main.java.asynctaskexecutor.entity.Task;
 import main.java.asynctaskexecutor.service.QueueService;
 import main.java.asynctaskexecutor.taskworker.TaskCreator;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MainTests {
 
     @Test
+    @Ignore // this test is part  of testSortQueueNotWorkingWithHiload
     public void testSortQueue() {
         QueueService.QueueSingleton queueService = QueueService.QueueSingleton.INSTANCE;
         TaskCreator taskCreator = new TaskCreator(100);
